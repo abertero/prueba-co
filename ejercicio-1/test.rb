@@ -7,9 +7,12 @@ class Login
     @sessions = []
     @users = []
     @passwords = []
-    hash.map do |k,v|
-      @users = @users + [k]
-      @passwords = @passwords + [v]
+    hash.map do |k, v|
+      # We must check if the user k is in users before adding a new one
+      unless user_exists(k)
+        @users = @users + [k]
+        @passwords = @passwords + [v]
+      end
     end
   end
 
@@ -30,40 +33,43 @@ class Login
       end
     end
     exists = temp != '' && temp == user
-    exists
+    return exists # I don't know if it's mandatory to use return in ruby, but other methods use it so I think it must go here.
   end
 
   # Register user
   def register_user(user, password)
-    last_index = users.size
-    users[last_index] = user
-    passwords[last_index] = password
+    # We check if the user exists and if the user is not empty
+    unless user_exists(user) || user == ''
+      last_index = users.size
+      users[last_index] = user
+      passwords[last_index] = password
+    end
   end
 
   def remove_user(user)
-    index = idx(user, users)
-    users[index] = nil
-    passwords[index] = nil
-    users.compact!
-    passwords.compact!
+    index = idx(user, users) # We must check if user is already registered.
+    unless index == -1
+      users[index] = nil
+      passwords[index] = nil
+      users.compact!
+      passwords.compact!
+    end
   end
 
   def check_password(user, password)
     index = idx(user, users)
-    password_correct = passwords[index] == password
-    return password_correct
+    if index != -1
+      password_correct = passwords[index] == password
+      return password_correct
+    else
+      return false
+    end
   end
 
   def update_password(user, old_password, new_password)
-    # First we check if the user exists
-    user_1 = ''
-    for i in users
-      if i == user
-        user_1 = user
-      end
-    end
-    if user_1 == user
-      index = idx(user, users)
+    # First we check if the user exists, we use our user_exists function in order to keep consistence with the way of prove that a user already exists
+    if user_exists(user)
+      index = idx(user, users)   # there is no need to check if index == -1
       if passwords[index] == old_password
         passwords[index] = new_password
         return true
@@ -74,28 +80,30 @@ class Login
 
   def login(user, password)
     index = idx(user, users)
-    if passwords[index] == password
+    if index != -1 && passwords[index] == password # We must check if user exists previously
       sessions << user
     end
   end
 
-  # Gets index of an element in an array
+  # Gets index of an element in an array, returns -1 in case it doesn't exists
   def idx(element, array)
     cont=0
     for i in array
       return cont if i == element
       cont += 1
     end
+    if cont == array.size
+      cont=-1
+    end
     return cont
   end
 end
 
 
-
 registered_users = {
-  'user1' => 'pass1',
-  'user2' => 'pass2',
-  'user3' => 'pass3'
+    'user1' => 'pass1',
+    'user2' => 'pass2',
+    'user3' => 'pass3'
 }
 
 login = Login.new(registered_users)

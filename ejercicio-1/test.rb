@@ -8,11 +8,9 @@ class Login
     @users = []
     @passwords = []
     hash.map do |k, v|
-      # We must check if the user k is in users before adding a new one
-      unless user_exists(k)
-        @users = @users + [k]
-        @passwords = @passwords + [v]
-      end
+      # We must not check if the user k is in users before adding a new one, because keys are unique in a hash
+      @users = @users + [k]
+      @passwords = @passwords + [v]
     end
   end
 

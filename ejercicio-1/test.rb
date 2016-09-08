@@ -23,15 +23,15 @@ class Login
 
   # Checks if user exists
   def user_exists(user)
-    # Temp variable for storing the user if found
-    temp = ''
+    if user == ''
+      return false
+    end
     for i in users
       if i == user
-        temp = user
+        return true # we return at the time of checks that user exists
       end
     end
-    exists = temp != '' && temp == user
-    return exists # I don't know if it's mandatory to use return in ruby, but other methods use it so I think it must go here.
+    return false
   end
 
   # Register user
